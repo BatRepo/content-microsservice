@@ -1,67 +1,68 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from '../product';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { DeleteResult } from 'mongodb';
+import { MediaService } from 'src/media/media.service';
 
 @Injectable()
 export class ProductService {
-  products: Product[] = [
-    {
-      name: 'Produto 1',
-      description: 'Esta é uma descrição aleatória do produto 1.',
-      images: ['image1.jpg', 'image2.jpg', 'image3.jpg'],
-      price: 19.99,
-      visible: true,
-      type_product: 'Tipo Aleatório 1',
-      sizes_image: ['small', 'medium', 'large'],
-      slug: 'produto-1',
-    },
-    {
-      name: 'Produto 2',
-      description: 'Esta é uma descrição aleatória do produto 2.',
-      images: ['image4.jpg', 'image5.jpg', 'image6.jpg'],
-      price: 29.99,
-      visible: false,
-      type_product: 'Tipo Aleatório 2',
-      sizes_image: ['small', 'medium'],
-      slug: 'produto-2',
-    },
-    {
-      name: 'Produto 3',
-      description: 'Esta é uma descrição aleatória do produto 3.',
-      images: ['image7.jpg', 'image8.jpg'],
-      price: 39.99,
-      visible: true,
-      type_product: 'Tipo Aleatório 3',
-      sizes_image: ['medium', 'large'],
-      slug: 'produto-3',
-    },
-  ];
+  constructor(
+    @InjectModel('Product') private readonly productModel: Model<Product>,
+    private readonly mediaService: MediaService,
+  ) {}
 
-  getAll() {
-    return this.products;
+  async getAll() {
+    return await this.productModel.find().exec();
   }
 
-  getBySlug(slug: string) {
-    const product = this.products.find((value) => (value.slug = slug));
+  async getBySlug(slug: string) {
+    const product = await this.productModel.findOne({ slug });
     return product;
   }
 
-  create(product: Product) {
-    this.products.push(product);
-    return product;
+  async create(product: Product) {
+    const productImage = product.images.sys;
+    const productSizeImages = product.sizes_image.sys?.id;
+    if (productImage.length > 1) {
+      const imageIds = productImage.id.reduce(async (ids, image) => {
+        const imagem = await this.mediaService.getById(image.id);
+        if (imagem) {
+          ids.push(imagem);
+        }
+        return ids;
+      }, []);
+      product.images = imageIds;
+    } else {
+      const imageCast = await this.mediaService.getById(productImage.id);
+      product.images = imageCast;
+    }
+
+    if (productSizeImages.length > 1) {
+      const imageIds = productSizeImages.id.reduce(async (ids, image) => {
+        const imagem = await this.mediaService.getById(image.id);
+        if (imagem) {
+          ids.push(imagem);
+        }
+        return ids;
+      }, []);
+      product.sizes_image = imageIds;
+    } else {
+      const imageCast = await this.mediaService.getById(productSizeImages.id);
+      product.sizes_image = imageCast;
+    }
+
+    const createProduct = new this.productModel(product);
+    return await this.productModel.create(createProduct);
   }
 
-  update(product: Product) {
-    let p = this.getBySlug(product.slug);
-    if (p) {
-      p = product;
-    }
-    return p;
+  async update(product: Product) {
+    await this.productModel.updateOne({ slug: product.slug }, product).exec();
+    return this.getBySlug(product.slug);
   }
 
-  delete(slug: string) {
-    const index = this.products.findIndex((value) => value.slug == slug);
-    if (index && index !== -1) {
-      this.products.splice(index, 1);
-    }
+  async delete(slug: string): Promise<DeleteResult> {
+    const del = await this.productModel.deleteOne({ slug }).exec();
+    return del;
   }
 }
