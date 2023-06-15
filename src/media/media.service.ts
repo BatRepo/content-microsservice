@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Media } from './media';
+import { media } from './media';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DeleteResult } from 'mongodb';
@@ -7,7 +7,7 @@ import { DeleteResult } from 'mongodb';
 @Injectable()
 export class MediaService {
   constructor(
-    @InjectModel('media') private readonly mediaModel: Model<Media>,
+    @InjectModel('Media') private readonly mediaModel: Model<media>,
   ) {}
 
   async getAll() {
@@ -19,12 +19,12 @@ export class MediaService {
     return asset;
   }
 
-  async create(asset: Media) {
+  async create(asset: media) {
     const createAsset = new this.mediaModel(asset);
     return await this.mediaModel.create(createAsset);
   }
 
-  async update(asset: Media) {
+  async update(asset: media) {
     await this.mediaModel.updateOne({ assetId: asset.assetId }, asset).exec();
     return this.getById(asset.assetId);
   }

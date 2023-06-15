@@ -1,8 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ContentfulService } from 'src/contentful/contentful.service';
-import { Media } from 'src/media/media';
 import { MediaService } from 'src/media/media.service';
-import { Product } from 'src/product/product';
 import { ProductService } from 'src/product/product-service/product-service.service';
 
 @Controller('webhook')

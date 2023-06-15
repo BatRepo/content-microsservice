@@ -1,4 +1,4 @@
-export class Media {
+export class media {
   nameAsset: string;
   file: any;
   description: number;
