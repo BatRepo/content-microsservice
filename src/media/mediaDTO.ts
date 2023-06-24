@@ -1,4 +1,4 @@
-export class media {
+export class mediaDTO {
   nameAsset: string;
   file: any;
   description: number;

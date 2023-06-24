@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { product } from '../product';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DeleteResult } from 'mongodb';
+import { Product } from './model/product.model';
+import { productDTO } from './productDTO';
 
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectModel('Product') private readonly productModel: Model<product>,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<Product>,
   ) {}
 
   async getAll() {
-    return await this.productModel.find().exec();
+    return await this.productModel.find();
   }
 
   async getBySlug(slug: string) {
@@ -19,7 +21,7 @@ export class ProductService {
     return product;
   }
 
-  async create(product: product) {
+  async create(product: productDTO) {
     // const productImage = product.images.sys;
     // const productSizeImages = product.sizes_image.sys?.id;
     // if (productImage.length > 1) {
@@ -55,7 +57,7 @@ export class ProductService {
     return await this.productModel.create(createProduct);
   }
 
-  async update(product: product) {
+  async update(product: productDTO) {
     await this.productModel.updateOne({ slug: product.slug }, product).exec();
     return this.getBySlug(product.slug);
   }

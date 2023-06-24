@@ -7,33 +7,34 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ProductService } from './product-service/product-service.service';
-import { product } from './product';
+import { ProductService } from './product-service.service';
+import { Product } from './model/product.model';
+import { productDTO } from './productDTO';
 
 @Controller('product')
 export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get()
-  async getAll(): Promise<product[]> {
+  async getAll(): Promise<Product[]> {
     return this.productService.getAll();
   }
 
   @Get()
-  async getBySlug(@Param('slug') slug: string): Promise<product> {
+  async getBySlug(@Param('slug') slug: string): Promise<Product> {
     return this.productService.getBySlug(slug);
   }
 
   @Post()
-  async create(@Body() product: product): Promise<product> {
+  async create(@Body() product: productDTO): Promise<Product> {
     return this.productService.create(product);
   }
 
   @Put(':slug')
   async update(
     @Param('slug') slug: string,
-    @Body() product: product,
-  ): Promise<product> {
+    @Body() product: productDTO,
+  ): Promise<Product> {
     product.slug = slug;
     return this.productService.update(product);
   }

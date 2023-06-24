@@ -1,10 +1,10 @@
-export class product {
+export class productDTO {
   name: string;
   description: string;
-  images: any;
+  images: [];
   price: number;
   visible: boolean;
   type_product: string;
-  sizes_image: any;
+  sizes_image: [];
   slug: string;
 }

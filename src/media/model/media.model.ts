@@ -2,7 +2,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({
+  timestamps: true,
+})
 export class Media extends Document {
   @Prop({ required: true })
   assetId: string;
